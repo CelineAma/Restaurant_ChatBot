@@ -7,7 +7,7 @@ const formChat = document.getElementById("form-chat");
 const inputChat = document.getElementById("input-chat");
 
 //connect client to the server
-const socket = io("http://localhost:3000");
+const socket = io("https://celine-restaurant-chatbot.onrender.com");
 
 //listen to the connect socket event
 socket.on("connect", () => {
