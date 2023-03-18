@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Restaurant Chatbot</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+    <h1>Restaurant Chatbot</h1>
+    <div class="chat">
+      <div class="chatbot">
+        <p class="message bot-message"> Welcome to Celine's Restaurant! How can I help you?</p>
+        <div class="options">
+          <p>Select 1 to Place an order</p>
+          <p>Select 99 to Checkout order</p>
+          <p>Select 98 to See order history</p>
+          <p>Select 97 to See current order</p>
+          <p>Select 0 to Cancel order</p>
+        </div>
+      </div>
+    </div>
+    <div id="chat-box" class="chat-box">
+      <!-- <div class="chat-bubble chat-bubble-bot"></div>
+      <div class="chat-bubble chat-bubble-user"></div> -->
+    </div>
+    <form id="form-chat" class="form-chat">
+      <input id="input-chat" class="input-chat" type="text" placeholder="Type your message here" autocomplete="off" required>
+      <button type="submit">Send</button>
+    </form>
+  </body>
+</html>
