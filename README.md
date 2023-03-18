@@ -71,7 +71,7 @@ This Restaurant ChatBot ia categorized as a web-based conversational interface t
 
 ## Base URL
 
-- [My Restaurant ChatBot base URL](https://.com)
+- [My Restaurant ChatBot base URL](https://celine-restaurant-chatbot.onrender.com)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
