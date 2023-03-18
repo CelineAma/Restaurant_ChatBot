@@ -25,7 +25,7 @@ const sessionSecret = process.env.SESSION_SECRET;
 mongoose.connect(process.env.MONGODB_CONNECTION_URL).then(() => {
     console.log("MongoDB connected successfully");
 
-httpServer.listen(3000, "localhost", () => {
+httpServer.listen(3000, () => {
     console.log("Server started on port 3000");
     });
 
