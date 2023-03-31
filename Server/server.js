@@ -66,8 +66,8 @@ io.use((socket, next) => {
 //set the event listener for the socket.io
 io.on("connection", async (socket) => {
     // console.log(socket.id);
-    const optionJson = fs.readFileSync(path.join(__dirname, "data", "option.json"), "utf-8"); //to read the option file
-    const options = JSON.parse(optionJson);
+    //const optionJson = fs.readFileSync(path.join(__dirname, "data", "option.json"), "utf-8"); //to read the option file
+    //const options = JSON.parse(optionJson);
 
 
 //creating user IDs
@@ -94,7 +94,7 @@ else {
 }
 
 
-socket.emit("options", option);
+socket.emit("options", options);
 
 console.log(userId); //confirming that the session is persisting (not creating new session for new user when registered user reload)
 });
@@ -111,11 +111,11 @@ app.use((req, res, next) => {
   });
   
   // Access the options data from the session object
-  app.get('/', (req, res) => {
-    const options = req.session.options;
-    // Use the options data as needed
-    res.send("Options data: " + JSON.stringify(options));
-  });
+//   app.get('/', (req, res) => {
+//     const options = req.session.options;
+//     // Use the options data as needed
+//     res.send("Options data: " + JSON.stringify(options));
+//   });
   
 //to connect the option.json data file
 app.get('/', (req, res) => {
