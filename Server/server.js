@@ -110,12 +110,12 @@ app.use((req, res, next) => {
     next();
   });
   
-  // Access the options data from the session object
-//   app.get('/', (req, res) => {
-//     const options = req.session.options;
-//     // Use the options data as needed
-//     res.send("Options data: " + JSON.stringify(options));
-//   });
+  //Access the options data from the session object
+  app.get('/', (req, res) => {
+    const options = req.session.options;
+    // Use the options data as needed
+    res.send("Options data: " + JSON.stringify(options));
+  });
   
 //to connect the option.json data file
 app.get('/', (req, res) => {
