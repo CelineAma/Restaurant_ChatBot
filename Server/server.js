@@ -15,6 +15,10 @@ require('dotenv').config();
 const User = require("./Models/userModels"); 
 const { path } = require("./app");
 
+const getOption = require('./getOption');
+
+
+
 //connect to access environmental variables
 const port = process.env.PORT || 3000;
 const MONGODB_CONNECTION_URL = process.env.MONGODB_CONNECTION_URL;
@@ -94,14 +98,10 @@ else {
 }
 
 
-socket.emit("options", option);
+socket.emit("options", options);
 
 console.log(userId); //confirming that the session is persisting (not creating new session for new user when registered user reload)
 });
-
-
-
-
 
 
 // Store the options data in the session object
@@ -125,5 +125,65 @@ app.get('/', (req, res) => {
     // render the chatbot interface
     res.render('chatbot');
   });
+
+
+  app.post('/chat', (req, res) => {
+    const { message } = req.body;
+    const sessionId = req.sessionID;
+
+    //a function that sends a message to the user via the chat interface.
+    function sendMessage(res, message) {
+        const botMessage = {
+          message: message,
+          sender: 'bot'
+        };
+      
+        res.json({
+          success: true,
+          message: botMessage
+        });
+      }
+
+
+    // to create a process message function where you are currently retrieving the user's message and checking which option they selected
+    function processMessage(req, res) {
+        // Retrieve user's message from request body
+        const userMessage = req.body.Body.trim();
+      
+        // Check which option the user selected
+        if (userMessage === '1') {
+          // Call the getOption function to return the list of items
+          const options = getOption('menu');
+          sendMessage(res, options);
+        } else if (userMessage === '99') {
+          // Call the placeOrder function to place the order
+          const result = placeOrder(req.sessionID);
+          sendMessage(res, result);
+        } else if (userMessage === '98') {
+          // Call the getOrderHistory function to return the order history
+          const orderHistory = getOrderHistory(req.sessionID);
+          sendMessage(res, orderHistory);
+        } else if (userMessage === '97') {
+          // Call the getCurrentOrder function to return the current order
+          const currentOrder = getCurrentOrder(req.sessionID);
+          sendMessage(res, currentOrder);
+        } else if (userMessage === '0') {
+          // Call the cancelOrder function to cancel the order
+          const result = cancelOrder(req.sessionID);
+          sendMessage(res, result);
+        } else {
+          sendMessage(res, 'Invalid option selected. Please try again.');
+        }
+      }
+      
+  
+    // Call the processMessage() function to handle the user's message
+    // Process the user message and get the response
+    const response = processMessage(message, sessionId);
+  
+    // Send the response back to the user
+    res.json({ response });
+  });
+  
 
   
