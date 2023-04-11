@@ -145,7 +145,8 @@ app.get('/', (req, res) => {
       }
 
 
-    // to create a process message function where you are currently retrieving the user's message and checking which option they selected
+    // to create a process message function where you are currently retrieving the user's message and checking which option they selected.
+    
     function processMessage(req, res) {
         // Retrieve user's message from request body
         const userMessage = req.body.Body.trim();

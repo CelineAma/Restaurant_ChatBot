@@ -1,5 +1,5 @@
 import e from "express";
-import {io} from "socket.io-client"; //"https://cdn.socket.io/4.4.1/socket.io.esm.min.js"
+import {io} from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js"; //"socket.io-client";
 import { options } from "../app";
 
 const chatBox = document.getElementById("chat-box");
