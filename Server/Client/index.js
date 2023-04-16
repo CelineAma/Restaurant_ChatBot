@@ -1,53 +1,52 @@
-// import e from "express";
-import {io} from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js"; //"socket.io-client";
-import { options } from "../app";
+import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js"; //"socket.io-client";
 
 const chatBox = document.getElementById("chat-box");
 const formChat = document.getElementById("form-chat");
 const inputChat = document.getElementById("input-chat");
 
 //connect client to the server
-const socket = io("https://celine-restaurant-chatbot.onrender.com");
+// const socket = io("https://celine-restaurant-chatbot.onrender.com");
+const socket = io("http://localhost:3000");
 
 //listen to the connect socket event
 socket.on("connect", () => {
-    console.log(socket.id);
+  console.log(socket.id);
 });
 
-formChat.addEventListener("submit", function(e){
-e.preventDefault();
-console.log("clicked")
+formChat.addEventListener("submit", function (e) {
+  e.preventDefault();
+  console.log("clicked");
 
-const inputChatMessage = inputChat.value;
-displayMessage(inputChatMessage, false); 
-inputChat.value = "";
+  const inputChatMessage = inputChat.value;
+  displayMessage(inputChatMessage, false);
+  inputChat.value = "";
+});
 
-})
-
-function displayMessage(message, isBotMessage){
-    const chatBubble = document.createElement("div");
-    chatBubble.className = `chat-bubble chat-bubble-${isBotMessage?"bot" : "user"}`
-    chatBubble.innerHTML = message;
-    chatBox.appendChild(chatBubble);
+function displayMessage(message, isBotMessage) {
+  const chatBubble = document.createElement("div");
+  chatBubble.className = `chat-bubble chat-bubble-${
+    isBotMessage ? "bot" : "user"
+  }`;
+  chatBubble.innerHTML = message;
+  chatBox.appendChild(chatBubble);
 }
-
 
 //listening to the option event after emitting
 socket.on("options", (options) => {
-const optionsHtml = options.map(options => `<ul><li>${options}</li></ul>`).join("");
-displayMessage(optionsHtml, true)
+  const optionsHtml = options
+    .map((option) => `<ul><li>${option}</li></ul>`)
+    .join("");
+  displayMessage(optionsHtml, true);
 });
-
-
 
 // function processMessage(message) {
 //     // retrieve the user's session
 //     const session = getSession(message.from);
-  
+
 //     // check which option the user selected
 //     const selectedOption = parseInt(message.text);
 //     let response;
-  
+
 //     switch (selectedOption) {
 //       case 0:
 //         // cancel order
@@ -108,10 +107,9 @@ displayMessage(optionsHtml, true)
 //         response = "Invalid option selected";
 //         break;
 //     }
-  
+
 //     // update the user's session
 //     updateSession(message.from, session);
-  
+
 //     return response;
 //   }
-  
