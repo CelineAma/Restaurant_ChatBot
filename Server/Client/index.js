@@ -1,8 +1,9 @@
 import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js"; //"socket.io-client";
+// import { options } from "../app";
 
 const chatBox = document.getElementById("chat-box");
 const formChat = document.getElementById("form-chat");
-const inputChat = document.getElementById("input-chat");
+const inputChat = document.getElementById("inputChat");
 
 //connect client to the server
 // const socket = io("https://celine-restaurant-chatbot.onrender.com");
@@ -13,6 +14,17 @@ socket.on("connect", () => {
   console.log(socket.id);
 });
 
+//message from server
+socket.on("message", message =>{
+    console.log(message);
+
+    displayMessage(message);
+
+    //scroll down messages
+    chatBox.scrollTop = chatBox.scrollHeight;
+   
+});
+
 formChat.addEventListener("submit", function (e) {
   e.preventDefault();
   console.log("clicked");
@@ -20,8 +32,18 @@ formChat.addEventListener("submit", function (e) {
   const inputChatMessage = inputChat.value;
   displayMessage(inputChatMessage, false);
   inputChat.value = "";
+
+
+  //emitting a message to the server
+  socket.emit("inputChat", inputChatMessage);
+
+  //clear input
+  e.target.element.inputChat.value = "";
+  e.target.element.inputChat.focus(); 
 });
 
+
+//output to the DOM
 function displayMessage(message, isBotMessage) {
   const chatBubble = document.createElement("div");
   chatBubble.className = `chat-bubble chat-bubble-${
@@ -38,6 +60,21 @@ socket.on("options", (options) => {
     .join("");
   displayMessage(optionsHtml, true);
 });
+
+
+
+
+//  // end chat
+//  endChat.addEventListener('click', () => {
+//     window.location = '/chatRoom.html';
+//   });
+
+
+
+
+
+
+
 
 // function processMessage(message) {
 //     // retrieve the user's session

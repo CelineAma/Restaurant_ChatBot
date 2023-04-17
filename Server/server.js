@@ -25,7 +25,7 @@ const sessionSecret = process.env.SESSION_SECRET;
 mongoose
   .connect(MONGODB_CONNECTION_URL)
   .then(() => {
-    console.log("MongoDB connected successfully");
+    console.log("MongoDB connected successfully.");
 
     httpServer.listen(3000, () => {
       console.log("Server started on port 3000");
@@ -61,14 +61,14 @@ io.use((socket, next) => {
   sessionMW(socket.request, {}, next);
 });
 const optionJson = fs.readFileSync(
-  path.join(__dirname, "data", "option.json"),
+  path.join(__dirname, "Data", "option.json"),
   "utf-8"
 ); //to read the option file
 const options = JSON.parse(optionJson);
 //set the event listener for the socket.io
 io.on("connection", async (socket) => {
   // console.log(socket.id);
-  socket.emit("options", options);
+  socket.emit("option", options);
 
   //creating user IDs
   let user;
