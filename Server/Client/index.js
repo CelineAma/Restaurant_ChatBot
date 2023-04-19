@@ -3,7 +3,7 @@ import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js"; //"socket
 
 const chatBox = document.getElementById("chat-box");
 const formChat = document.getElementById("form-chat");
-const inputChat = document.getElementById("inputChat");
+const inputChat = document.getElementById("input-chat");
 
 //connect client to the server
 // const socket = io("https://celine-restaurant-chatbot.onrender.com");
@@ -27,7 +27,7 @@ socket.on("message", message =>{
 
 formChat.addEventListener("submit", function (e) {
   e.preventDefault();
-  console.log("clicked");
+  // console.log("clicked");
 
   const inputChatMessage = inputChat.value;
   displayMessage(inputChatMessage, false);
@@ -35,11 +35,11 @@ formChat.addEventListener("submit", function (e) {
 
 
   //emitting a message to the server
-  socket.emit("inputChat", inputChatMessage);
+  socket.emit("chatMessage", inputChatMessage);
 
   //clear input
-  e.target.element.inputChat.value = "";
-  e.target.element.inputChat.focus(); 
+  // e.target.element.inputChat.value = "";
+  e.target.element.inputChatMessage.focus(); 
 });
 
 
@@ -54,9 +54,9 @@ function displayMessage(message, isBotMessage) {
 }
 
 //listening to the option event after emitting
-socket.on("options", (options) => {
+socket.on("option", (options) => {
   const optionsHtml = options
-    .map((option) => `<ul><li>${option}</li></ul>`)
+    .map((options) => `<ul><li>${options}</li></ul>`)
     .join("");
   displayMessage(optionsHtml, true);
 });

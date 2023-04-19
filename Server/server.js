@@ -10,7 +10,7 @@ const MongoStore = require("connect-mongo");
 const { Server } = require("socket.io");
 const app = require("./app");
 require("dotenv").config();
-// const { socket } = require("dgram");
+
 
 const User = require("./Models/userModels");
 
@@ -65,35 +65,7 @@ const optionJson = fs.readFileSync(
   "utf-8"
 ); //to read the option file
 const options = JSON.parse(optionJson);
-//set the event listener for the socket.io
-io.on("connection", async (socket) => {
-  // console.log(socket.id);
-  socket.emit("option", options);
 
-  //creating user IDs
-  let user;
-
-  const session = socket.request.session;
-  var userId = session.userId;
-  console.log(userId);
-  if (!userId) {
-    // session.userId = uuidv4();
-    userId = uuidv4();
-    session.userId = userId;
-    session.save((error) => {
-      if (error) {
-        console.log(error);
-      }
-    });
-    user = await User.create({ userId: userId }); //create userId
-    console.log("You're a New User");
-  } else {
-    console.log("Welcome, Registered User");
-    user = await User.findOne({ userId: userId }); //search for registered user
-  }
-
-  console.log(userId); //confirming that the session is persisting (not creating new session for new user when registered user reload)
-});
 
 // Store the options data in the session object
 app.use((req, res, next) => {
@@ -132,7 +104,12 @@ app.post("/chat", (req, res) => {
       success: true,
       message: botMessage,
     });
-  }
+  };
+
+//   const option = getOption(1);
+// console.log(option);
+
+
 
   // to create a process message function where you are currently retrieving the user's message and checking which option they selected.
 
@@ -173,3 +150,38 @@ app.post("/chat", (req, res) => {
   // Send the response back to the user
   res.json({ response });
 });
+
+
+
+//set the event listener for the socket.io
+io.on("connection", async (socket) => {
+  
+  // console.log(socket.id);
+  socket.emit("option", options);
+
+  //creating user IDs
+  let user;
+cl
+  const session = socket.request.session;
+  var userId = session.userId;
+  console.log(userId);
+  if (!userId) {
+    // session.userId = uuidv4();
+    userId = uuidv4();
+    session.userId = userId;
+    session.save((error) => {
+      if (error) {
+        console.log(error);
+      }
+    });
+    user = await User.create({ userId: userId }); //create userId
+    console.log("You're a New User");
+  } else {
+    console.log("Welcome, Registered User");
+    user = await User.findOne({ userId: userId }); //search for registered user
+  }
+
+  console.log(userId); //confirming that the session is persisting (not creating new session for new user when registered user reload)
+});
+
+
