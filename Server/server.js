@@ -161,7 +161,7 @@ io.on("connection", async (socket) => {
 
   //creating user IDs
   let user;
-cl
+
   const session = socket.request.session;
   var userId = session.userId;
   console.log(userId);
