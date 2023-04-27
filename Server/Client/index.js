@@ -1,152 +1,136 @@
 import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js"; //"socket.io-client";
-// import { options } from "../app";
 
-const chatBox = document.getElementById("chat-box");
-const formChat = document.getElementById("form-chat");
-const inputChat = document.getElementById("input-chat");
+const chatSpace = document.getElementById("chat-box");
+const chatInput = document.getElementById("form-chat");
+const chatField = document.getElementById("input-chat");
+
+const options = [
+  "Select 1 to Place an order",
+  "Select 99 to checkout order",
+  "Select 98 to see order history",
+  "Select 97 to see current order",
+  "Select 0 to cancel order",
+];
 
 //connect client to the server
 // const socket = io("https://celine-restaurant-chatbot.onrender.com");
 const socket = io("http://localhost:3000");
 
+function scrollToBottom() {
+  chatSpace.scrollTo({
+    top: chatSpace.scrollHeight,
+    behavior: "smooth",
+  });
+}
+
+function renderMessage(message, isBotMsg) {
+  const chatBubble = document.createElement("div");
+  chatBubble.className = `chat-bubble chat-bubble-${isBotMsg ? "bot" : "user"}`;
+  chatBubble.innerHTML = message;
+  chatSpace.insertAdjacentElement("beforeend", chatBubble);
+  // Scrolls to the bottom of the chat container
+  scrollToBottom();
+  //   Save to DB
+}
+
+function renderOptions() {
+  const chatMsg = `<ul>${options
+    .map((option) => `<li>${option}</li>`)
+    .join("")}</ul>`;
+  renderMessage(chatMsg, true);
+}
+
+function renderMenu(menu) {
+  const chatMsg = `<ol start="2">${menu
+    .map(
+      (item) => `<li>
+      <span>${item.name}</span> - ${item.price} NGN - <span>${item.description}</span>
+    </li>`
+    )
+    .join("")}</ul>`;
+  renderMessage(chatMsg, true);
+}
+
+function renderCurrentOrder(data) {
+  const chatMsg = `<div class="order">
+    <h3>Current Order</h3>
+    <ul>
+    ${data.order
+      .map(
+        (item) => `<li>
+    <span class="order__name">${item.name}</span>
+    <span class="order__price">₦${item.price}</span>
+  </li>`
+      )
+      .join("")}
+    </ul>
+    <div class="order__total">
+      <span>Total:</span>
+      <span>₦${data.total}</span>
+    </div>`;
+  renderMessage(chatMsg, true);
+}
+
+function renderOrderHistory(orders) {
+  const chatMsg = orders
+    .map(
+      (order) => `<div class="order__history">
+    ${order.order
+      .map(
+        (item) => `<div class="item">${item.name}</div>
+    <div class="price">₦${item.price}</div>
+    <div class="details">
+      <span>Description:</span> ${item.description}<br />
+    </div>`
+      )
+      .join("")}
+  </div>`
+    )
+    .join("");
+  renderMessage(chatMsg, true);
+}
+
 //listen to the connect socket event
 socket.on("connect", () => {
   console.log(socket.id);
+  renderOptions();
 });
 
-//message from server
-socket.on("message", message =>{
-    console.log(message);
+socket.on("botResponse", ({ type, data }) => {
+  switch (type) {
+    case "menu":
+      renderMenu(data.menu);
+      break;
 
-    displayMessage(message);
+    case "checkout":
+      renderMessage(data.text, true);
+      renderOptions(options);
+      break;
 
-    //scroll down messages
-    chatBox.scrollTop = chatBox.scrollHeight;
-   
+    case "currentOrder":
+      renderCurrentOrder(data);
+      renderMessage("Select 99 to checkout your order.", true);
+      break;
+
+    case "orderHistory":
+      renderOrderHistory(data.orders);
+      break;
+
+    case "unknownInput":
+      renderMessage(data.text, true);
+      renderOptions(options);
+      break;
+
+    default:
+      renderMessage(data.text, true);
+      break;
+  }
 });
 
-formChat.addEventListener("submit", function (e) {
+chatInput.addEventListener("submit", function (e) {
   e.preventDefault();
-  // console.log("clicked");
-
-  const inputChatMessage = inputChat.value;
-  displayMessage(inputChatMessage, false);
-  inputChat.value = "";
-
-
-  //emitting a message to the server
-  socket.emit("chatMessage", inputChatMessage);
-
-  //clear input
-  // e.target.element.inputChat.value = "";
-  e.target.element.inputChatMessage.focus(); 
+  const msg = chatField.value.trim();
+  chatField.value = "";
+  socket.emit("sendOption", msg);
+  renderMessage(msg, false);
 });
-
-
-//output to the DOM
-function displayMessage(message, isBotMessage) {
-  const chatBubble = document.createElement("div");
-  chatBubble.className = `chat-bubble chat-bubble-${
-    isBotMessage ? "bot" : "user"
-  }`;
-  chatBubble.innerHTML = message;
-  chatBox.appendChild(chatBubble);
-}
-
-//listening to the option event after emitting
-socket.on("option", (options) => {
-  const optionsHtml = options
-    .map((options) => `<ul><li>${options}</li></ul>`)
-    .join("");
-  displayMessage(optionsHtml, true);
-});
-
-
-
-
-//  // end chat
-//  endChat.addEventListener('click', () => {
-//     window.location = '/chatRoom.html';
-//   });
-
-
-
-
-
-
-
-
-// function processMessage(message) {
-//     // retrieve the user's session
-//     const session = getSession(message.from);
-
-//     // check which option the user selected
-//     const selectedOption = parseInt(message.text);
-//     let response;
-
-//     switch (selectedOption) {
-//       case 0:
-//         // cancel order
-//         response = "Order cancelled";
-//         delete session.order;
-//         break;
-//       case 1:
-//         // get list of items
-//         const menu = JSON.parse(fs.readFileSync('menu.json'));
-//         response = "Please select an item from the menu:\n";
-//         menu.forEach(item => {
-//           response += `${item.number}. ${item.name}\n`;
-//         });
-//         break;
-//       case 97:
-//         // view current order
-//         if (session.order) {
-//           response = "Current order:\n";
-//           session.order.forEach(item => {
-//             response += `${item.name} - ${item.price}\n`;
-//           });
-//         } else {
-//           response = "No order to display";
-//         }
-//         break;
-//       case 98:
-//         // view order history
-//         if (session.orderHistory) {
-//           response = "Order history:\n";
-//           session.orderHistory.forEach(order => {
-//             response += `${order.timestamp}\n`;
-//             order.items.forEach(item => {
-//               response += `${item.name} - ${item.price}\n`;
-//             });
-//           });
-//         } else {
-//           response = "No order history to display";
-//         }
-//         break;
-//       case 99:
-//         // place order
-//         if (session.order) {
-//           if (!session.orderHistory) {
-//             session.orderHistory = [];
-//           }
-//           session.orderHistory.push({
-//             timestamp: new Date(),
-//             items: session.order
-//           });
-//           response = "Order placed";
-//           delete session.order;
-//         } else {
-//           response = "No order to place";
-//         }
-//         break;
-//       default:
-//         // invalid option
-//         response = "Invalid option selected";
-//         break;
-//     }
-
-//     // update the user's session
-//     updateSession(message.from, session);
-
-//     return response;
-//   }

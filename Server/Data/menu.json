@@ -1,136 +1,56 @@
-{
-    "menu": [
-      {
-        "name": "Debonairs-Pizza",
-        "description": "A delicious pizza with your choice of toppings",
-        "price": 10.99,
-        "options": [
-          {
-            "name": "Size",
-            "choices": [
-              {
-                "name": "Small",
-                "price": 0.00
-              },
-              {
-                "name": "Medium",
-                "price": 2.99
-              },
-              {
-                "name": "Large",
-                "price": 4.99
-              }
-            ]
-          },
-          {
-            "name": "Toppings",
-            "choices": [
-              {
-                "name": "Pepperoni",
-                "price": 0.99
-              },
-              {
-                "name": "Mushrooms",
-                "price": 1.05
-              },
-              {
-                "name": "Onions",
-                "price": 0.99
-              },
-              {
-                "name": "Green Peppers",
-                "price": 0.99
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "name": "Jazzy-Burger",
-        "description": "A yummy burger with your choice of toppings",
-        "price": 8.99,
-        "options": [
-          {
-            "name": "Type",
-            "choices": [
-              {
-                "name": "Beef",
-                "price": 0.00
-              },
-              {
-                "name": "Chicken",
-                "price": 1.99
-              },
-              {
-                "name": "Veggie",
-                "price": 0.99
-              }
-            ]
-          },
-          {
-            "name": "Toppings",
-            "choices": [
-              {
-                "name": "Lettuce",
-                "price": 0.25
-              },
-              {
-                "name": "Tomato",
-                "price": 0.25
-              },
-              {
-                "name": "Cheese",
-                "price": 0.99
-              },
-              {
-                "name": "Bacon",
-                "price": 1.99
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "name": "SoFresh-Salad",
-        "description": "A fresh salad with your choice of dressing",
-        "price": 7.99,
-        "options": [
-          {
-            "name": "Type",
-            "choices": [
-              {
-                "name": "Sweet n Spicy Chicken Salad",
-                "price": 0.00
-              },
-              {
-                "name": "Avo Spicy Chicken Salad",
-                "price": 1.99
-              },
-              {
-                "name": "Sweet Veggies Salad",
-                "price": 1.99
-              }
-            ]
-          },
-          {
-            "name": "Dressing",
-            "choices": [
-              {
-                "name": "Herby Ranch",
-                "price": 0.25
-              },
-              {
-                "name": "Honey Mustard",
-                "price": 0.25
-              },
-              {
-                "name": "Balsamic Vinaigrette",
-                "price": 0.99
-              }
-            ]
-          }
-        ]
-      }
-    ]
+[
+  {
+    "id": 2,
+    "name": "Pepperoni Pizza",
+    "description": "Classic pizza with pepperoni and mozzarella cheese",
+    "price": 12.99
+  },
+  {
+    "id": 3,
+    "name": "Hawaiian Pizza",
+    "description": "Pizza with ham, pineapple, and mozzarella cheese",
+    "price": 11.99
+  },
+  {
+    "id": 4,
+    "name": "Veggie Pizza",
+    "description": "Pizza with fresh vegetables including mushrooms, bell peppers, onions, and olives",
+    "price": 9.99
+  },
+  {
+    "id": 5,
+    "name": "Margherita Pizza",
+    "description": "Traditional pizza with tomato sauce, fresh mozzarella cheese, and basil",
+    "price": 10.99
+  },
+  {
+    "id": 6,
+    "name": "Meat Lovers Pizza",
+    "description": "Pizza with a combination of meats including pepperoni, sausage, bacon, and ham",
+    "price": 13.99
+  },
+  {
+    "id": 7,
+    "name": "BBQ Chicken Pizza",
+    "description": "Pizza with BBQ sauce, chicken, onions, and mozzarella cheese",
+    "price": 12.99
+  },
+  {
+    "id": 8,
+    "name": "Debonairs-Pizza",
+    "description": "A delicious pizza with your choice of toppings",
+    "price": 10.99
+  },
+  {
+    "id": 9,
+    "name": "Jazzy-Burger",
+    "description": "A yummy burger with your choice of toppings",
+    "price": 8.99
+  },
+  {
+    "id": 10,
+    "name": "SoFresh-Salad",
+    "description": "A fresh salad with your choice of dressing",
+    "price": 7.99
   }
-  
+]

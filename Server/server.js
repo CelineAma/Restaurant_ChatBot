@@ -3,35 +3,59 @@ const path = require("path");
 const fs = require("fs");
 
 const mongoose = require("mongoose");
-const { v4: uuidv4 } = require("uuid");
 
 const session = require("express-session");
-const MongoStore = require("connect-mongo");
+var MongoDBStore = require("connect-mongodb-session")(session);
 const { Server } = require("socket.io");
 const app = require("./app");
 require("dotenv").config();
 
-
-const User = require("./Models/userModels");
-
-const getOption = require("./getOption");
-
 //connect to access environmental variables
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 const MONGODB_CONNECTION_URL = process.env.MONGODB_CONNECTION_URL;
-const sessionSecret = process.env.SESSION_SECRET;
+const SESSION_SECRET = process.env.SESSION_SECRET;
 
 //connect mongodb
 mongoose
   .connect(MONGODB_CONNECTION_URL)
   .then(() => {
-    console.log("MongoDB connected successfully.");
+    console.log("MongoDB connected successfully");
 
-    httpServer.listen(3000, () => {
-      console.log("Server started on port 3000");
+
+//create app to listen to the server when connected
+const httpServer = http.createServer(app);
+
+    httpServer.listen(PORT, () => {
+      console.log("Server started on port, " + PORT);
     });
   })
   .catch((error) => console.log("MongoDB connection failed"));
+
+//create the session middleware MW
+var store = new MongoDBStore({
+  uri: MONGODB_CONNECTION_URL,
+  collection: "sessions",
+});
+
+// Catch errors
+store.on("error", function (error) {
+  console.log(error);
+});
+
+const sess = {
+  secret: SESSION_SECRET,
+  resave: true,
+  saveUninitialized: true,
+  cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 }, //it's set on false as its on http not https //Also, specified how long it takes the cookies to expire in milliseconds (session expire in 7 days)
+  store: store,
+};
+
+if (process.env.NODE_ENV === "production") {
+  sess.cookie.secure = true; //serve secure cookies
+  sess.cookie.httpOnly = true; //serve secure cookies
+}
+
+const sessionMW = session(sess);
 
 //create app to listen to the server when connected
 const httpServer = http.createServer(app);
@@ -44,144 +68,165 @@ const io = new Server(httpServer, {
   },
 });
 
-//create the session middleware MW
-const sessionMW = session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false, maxAge: 13149000000 }, //it's set on false as its on http not https //Also, specified how long it takes the cookies to expire in milliseconds (session expire in 5months)
-  store: MongoStore.create({ mongoUrl: MONGODB_CONNECTION_URL }), //connect to a store in a database collection: restaurant chatbot
+//configure the middleware to the session server
+io.use((socket, next) => {
+  sessionMW(socket.request, {}, next);
 });
 
 //app to be aware of the session milddleware
 app.use(sessionMW);
 
-//configure the middleware to the session server
-io.use((socket, next) => {
-  sessionMW(socket.request, {}, next);
-});
-const optionJson = fs.readFileSync(
-  path.join(__dirname, "Data", "option.json"),
-  "utf-8"
-); //to read the option file
-const options = JSON.parse(optionJson);
-
-
-// Store the options data in the session object
-app.use((req, res, next) => {
-  req.session.options = options;
-  next();
-});
-
-//Access the options data from the session object
-app.get("/", (req, res) => {
-  const options = req.session.options;
-  // Use the options data as needed
-  res.send("Options data: " + JSON.stringify(options));
-});
-
-//to connect the option.json data file
-app.get("/", (req, res) => {
-  // store the options data in the user's session object
-  req.session.options = options;
-
-  // render the chatbot interface
-  res.render("chatbot");
-});
-
-app.post("/chat", (req, res) => {
-  const { message } = req.body;
-  const sessionId = req.sessionID;
-
-  //a function that sends a message to the user via the chat interface.
-  function sendMessage(res, message) {
-    const botMessage = {
-      message: message,
-      sender: "bot",
-    };
-
-    res.json({
-      success: true,
-      message: botMessage,
-    });
-  };
-
-//   const option = getOption(1);
-// console.log(option);
-
-
-
-  // to create a process message function where you are currently retrieving the user's message and checking which option they selected.
-
-  function processMessage(req, res) {
-    // Retrieve user's message from request body
-    const userMessage = req.body.Body.trim();
-
-    // Check which option the user selected
-    if (userMessage === "1") {
-      // Call the getOption function to return the list of items
-      const options = getOption("menu");
-      sendMessage(res, options);
-    } else if (userMessage === "99") {
-      // Call the placeOrder function to place the order
-      const result = placeOrder(req.sessionID);
-      sendMessage(res, result);
-    } else if (userMessage === "98") {
-      // Call the getOrderHistory function to return the order history
-      const orderHistory = getOrderHistory(req.sessionID);
-      sendMessage(res, orderHistory);
-    } else if (userMessage === "97") {
-      // Call the getCurrentOrder function to return the current order
-      const currentOrder = getCurrentOrder(req.sessionID);
-      sendMessage(res, currentOrder);
-    } else if (userMessage === "0") {
-      // Call the cancelOrder function to cancel the order
-      const result = cancelOrder(req.sessionID);
-      sendMessage(res, result);
-    } else {
-      sendMessage(res, "Invalid option selected. Please try again.");
+const saveToSession = (session) => {
+  session.save(function (err) {
+    if (err) {
+      console.log(err);
     }
-  }
+  });
+};
 
-  // Call the processMessage() function to handle the user's message
-  // Process the user message and get the response
-  const response = processMessage(message, sessionId);
-
-  // Send the response back to the user
-  res.json({ response });
-});
-
-
-
-//set the event listener for the socket.io
 io.on("connection", async (socket) => {
-  
-  // console.log(socket.id);
-  socket.emit("option", options);
-
-  //creating user IDs
-  let user;
-
+  // SESSION
   const session = socket.request.session;
-  var userId = session.userId;
-  console.log(userId);
-  if (!userId) {
-    // session.userId = uuidv4();
-    userId = uuidv4();
-    session.userId = userId;
-    session.save((error) => {
-      if (error) {
-        console.log(error);
-      }
-    });
-    user = await User.create({ userId: userId }); //create userId
-    console.log("You're a New User");
-  } else {
-    console.log("Welcome, Registered User");
-    user = await User.findOne({ userId: userId }); //search for registered user
-  }
+  session.menuDisplayed = undefined;
+  session.orderHistory = [];
+  saveToSession(session);
 
-  console.log(userId); //confirming that the session is persisting (not creating new session for new user when registered user reload)
+  // GET resources
+  const menu = JSON.parse(
+    fs.readFileSync(path.join(__dirname, "Data", "menu.json"), "utf-8")
+  );
+  
+  // regular expression to include the range of numbers from 2 to 10 (both inclusive)
+  const pattern = /^([2-9]|1\d|10)(,([2-9]|1\d|10))*$/;
+  socket.on("sendOption", async (option) => {
+    switch (true) {
+      case option === "1":
+        session.menuDisplayed = true;
+        saveToSession(session);
+        socket.emit("botResponse", {
+          type: "menu",
+          data: { menu },
+        });
+        break;
+
+      case option === "99":
+        if (session.currentOrder) {
+          // Stores checked out order in order history
+          session.orderHistory.push(session.currentOrder);
+          // Reset currentOrder and menuDisplayed after checkout
+          session.currentOrder = undefined;
+          session.menuDisplayed = undefined;
+          saveToSession(session);
+          socket.emit("botResponse", {
+            type: "checkout",
+            data: {
+              text: "Thank you for placing your order with us.",
+            },
+          });
+        } else {
+          socket.emit("botResponse", {
+            type: "",
+            data: {
+              text: "I'm sorry, you don't have any active orders to checkout. If you'd like to place an order, please select option 1 to see our menu.",
+            },
+          });
+        }
+        break;
+
+      case option === "98":
+        if (session.orderHistory.length) {
+          socket.emit("botResponse", {
+            type: "orderHistory",
+            data: {
+              orders: session.orderHistory,
+            },
+          });
+        } else {
+          socket.emit("botResponse", {
+            type: "",
+            data: {
+              text: "You haven't placed an order with us yet. To get started, please select option 1 to view our menu and place your first order.",
+            },
+          });
+        }
+        break;
+
+      case option === "97":
+        if (session.currentOrder) {
+          socket.emit("botResponse", {
+            type: "currentOrder",
+            data: session.currentOrder,
+          });
+        } else {
+          socket.emit("botResponse", {
+            type: "",
+            data: {
+              text: "It looks like you don't have any active order. If you'd like to place a new order, please select option 1 to see our menu.",
+            },
+          });
+        }
+        break;
+
+      case option === "0":
+        if (session.currentOrder) {
+          session.currentOrder = undefined;
+          saveToSession(session);
+          socket.emit("botResponse", {
+            type: "",
+            data: {
+              text: "Order cancelled!",
+            },
+          });
+        } else {
+          socket.emit("botResponse", {
+            type: "",
+            data: {
+              text: "I'm sorry, but it looks like you don't have any active orders to cancel.",
+            },
+          });
+        }
+        break;
+
+      case pattern.test(option):
+        if (session.menuDisplayed) {
+          const items = option.split(",");
+          const order = menu.filter((item) =>
+            items.includes(item.id.toString())
+          );
+          const total = order.reduce(
+            (prevValue, item) => prevValue + item.price,
+            0
+          );
+          socket.emit("botResponse", {
+            type: "currentOrder",
+            data: { order, total },
+          });
+          session.currentOrder = { order, total };
+          saveToSession(session);
+        } else {
+          socket.emit("botResponse", {
+            type: "menu",
+            data: { menu },
+          });
+          session.menuDisplayed = true;
+          saveToSession(session);
+          socket.emit("botResponse", {
+            type: "",
+            data: {
+              text: "Please check the current menu list before placing your order, as it may have changed since your last order. Thank you!",
+            },
+          });
+        }
+        break;
+
+      default:
+        socket.emit("botResponse", {
+          type: "unknownInput",
+          data: {
+            text: "I'm sorry, I don't understand. Could you please choose from the options below?",
+          },
+        });
+        break;
+    }
+  });
 });
-
-
