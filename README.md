@@ -53,10 +53,13 @@ This Restaurant ChatBot ia categorized as a web-based conversational interface t
   SESSION_SECRET = ""
   COOKIE_EXPIRES_IN = ""
   ```
+  - cd ./Server directory
+  ```
+  
 - Start your server with node
 
   ```
-  npm run start
+  node server.js
   ```
 
   or with nodemon on development
