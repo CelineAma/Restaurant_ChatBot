@@ -13,8 +13,8 @@ const options = [
 ];
 
 //connect client to the server
-// const socket = io("https://celine-restaurant-chatbot.onrender.com");
-const socket = io("http://localhost:3000");
+const socket = io("https://celine-restaurant-chatbot.onrender.com");
+// const socket = io("http://localhost:3000");
 
 function scrollToBottom() {
   chatSpace.scrollTo({

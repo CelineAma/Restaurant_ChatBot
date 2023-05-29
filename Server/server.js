@@ -21,10 +21,6 @@ mongoose
   .then(() => {
     console.log("MongoDB connected successfully");
 
-
-//create app to listen to the server when connected
-const httpServer = http.createServer(app);
-
     httpServer.listen(PORT, () => {
       console.log("Server started on port, " + PORT);
     });
@@ -46,13 +42,13 @@ const sess = {
   secret: SESSION_SECRET,
   resave: true,
   saveUninitialized: true,
-  cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 }, //it's set on false as its on http not https //Also, specified how long it takes the cookies to expire in milliseconds (session expire in 7 days)
+  cookie: { maxAge: 13149000000 }, //it's set on false as its on http not https //Also, specified how long it takes the cookies to expire in milliseconds (session expire in 5months)
   store: store,
 };
 
 if (process.env.NODE_ENV === "production") {
-  sess.cookie.secure = true; //serve secure cookies
-  sess.cookie.httpOnly = true; //serve secure cookies
+  sess.cookie.secure = true; // serve secure cookies
+  sess.cookie.httpOnly = true; // serve secure cookies
 }
 
 const sessionMW = session(sess);
@@ -95,7 +91,6 @@ io.on("connection", async (socket) => {
   const menu = JSON.parse(
     fs.readFileSync(path.join(__dirname, "Data", "menu.json"), "utf-8")
   );
-  
   // regular expression to include the range of numbers from 2 to 10 (both inclusive)
   const pattern = /^([2-9]|1\d|10)(,([2-9]|1\d|10))*$/;
   socket.on("sendOption", async (option) => {

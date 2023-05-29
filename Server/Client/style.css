@@ -3,6 +3,10 @@ body {
   background-color: #531069;
   font-family: Arial, sans-serif;
 }
+
+h1{
+  color: whitesmoke;
+}
 .chat {
   background-color: #f1f1f1;
   padding: 10px;
